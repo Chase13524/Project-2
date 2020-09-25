@@ -54,41 +54,66 @@ void FBFriends::remove_current(){
     }
 }
 void FBFriends::insert(const Friend& f){
-    Friend * newdata = new Friend[capacity];
     if (used == capacity){
         resize();
     }
+    // Nothing in it
     if (used == 0){
         data[0] = f;
         used++;
         return;
     }
-    for (int i = 0; i < current_index; i++){
-        newdata[i] = data[i];
+    Friend * newdata = new Friend[capacity];
+    //Copy everything from 0 to < current index
+    int index = 0;
+    for (size_t i = 0; i < current_index; i++){
+        newdata[index] = data[i];
+        index++;
     }
-    newdata[current_index] = f;
-    for (int i = current_index; i < used; i++){
-        newdata[i+1] = data[i];
+    //Insert new item at current index
+    newdata[index] = f;
+    index++;
+    //Copy everything from current index over
+    for (size_t i = current_index; i < used; i++){
+        newdata[index] = data[i];
+        index++;
     }
     delete [] data;
     data = newdata;
 }
 void FBFriends::attach(const Friend& f){
-    Friend * newdata = new Friend[capacity];
     if (used == capacity){
         resize();
     }
+    // Possible situations
+    // Nothing in it
     if (used == 0){
         data[0] = f;
         used++;
         return;
     }
-    for (int i = 0; i <= current_index; i++){
-        newdata[i] = data[i];
+    // Adding to the end of the list
+    if (current_index == used-1){
+        data[used + 1] = f;
+        used++;
+        return;
     }
-    newdata[current_index+1] = f;
-    for (int i = current_index+1; i < used; i++){
-        newdata[i+1] = data[i];
+    // Everything else
+    Friend * newdata = new Friend[capacity];
+    int index = 0;
+    // Copy everything up to the current index
+    for (size_t i = 0; i <= current_index; i++){
+        cout << data[i].get_name() << '\n';
+        newdata[index] = data[i];
+        index++;
+    }
+    // Insert new friend
+    newdata[index] = f;
+    index++;
+    // Copy everything from current_index + 1
+    for (size_t i = current_index+1; i < used; i++){
+        cout << data[i].get_name() << '\n';
+        newdata[index] = data[i];
     }
     delete [] data;
     data = newdata;
@@ -106,11 +131,11 @@ void swapTwoArrPos(Friend * arr, int pos1, int pos2){
     arr[pos2] = swap;
 }
 void FBFriends::bday_sort(){
-    int min_index;
+    size_t min_index;
     Friend swap;
-    for (int start = 0; start < used-1; start++){
+    for (size_t start = 0; start < used-1; start++){
         min_index = start;
-        for (int search = start+1; search <= used; search++){
+        for (size_t search = start+1; search < used; search++){
             if (data[min_index].get_bday() < data[search].get_bday()){
                 min_index = search;
             }
@@ -141,18 +166,18 @@ bool FBFriends::is_friend(const Friend& f) const{
 
 void FBFriends::load(std::istream& ins){
     Friend dynFriend;
-    size_t index = 0;
     while (!ins.eof()){
         if (used == capacity){
             resize();
         }
         while (ins.peek() == '\n')
             ins.ignore();
-
+        if (ins.eof())
+            break;
+            
         ins >> dynFriend;
-        data[index] = dynFriend;
+        data[used] = dynFriend;
         used++;
-        index++;
     }
 }
 void FBFriends::save(std::ostream& outs){
