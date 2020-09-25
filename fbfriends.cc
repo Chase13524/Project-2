@@ -142,15 +142,13 @@ bool FBFriends::is_friend(const Friend& f) const{
 void FBFriends::load(std::istream& ins){
     Friend dynFriend;
     size_t index = 0;
-    if (ins.peek() == '\n')
-        ins.ignore();
     while (!ins.eof()){
-        // if (ins.peek() == '\n')
-        //     ins.ignore();
-            
         if (used == capacity){
             resize();
         }
+        while (ins.peek() == '\n')
+            ins.ignore();
+
         ins >> dynFriend;
         data[index] = dynFriend;
         used++;

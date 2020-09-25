@@ -37,9 +37,11 @@ int* Friend::convertToDate(const std::string &str) {
 }
 void Friend::input(std::istream& ins) {
     std::string dateStr;
-    if (ins.peek() == '\n')
-        ins.ignore();
+    while (ins.peek() == '\n')
+            ins.ignore();
     getline(ins, name);
+    while (ins.peek() == '\n')
+            ins.ignore();
     getline(ins, dateStr);
     int * date;
     date = convertToDate(dateStr);
