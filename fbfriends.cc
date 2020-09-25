@@ -38,20 +38,36 @@ void FBFriends::start(){
 }
 void FBFriends::advance(){
     current_index++;
+    if (current_index == used)
+        current_index = 0;
 }
 bool FBFriends::is_item(){
-    return (current_index >= 0 && current_index < used);
+    return (current_index < used);
 }
 Friend FBFriends::current(){
     return data[current_index];
 }
 void FBFriends::remove_current(){
-    if (is_item()){
-        for (size_t i = current_index; i <= used; i++){
-            data[i] = data[i+1];
-        }
-        used--;
+    // Check if it is a valid item
+    if (!is_item())
+        return;
+    Friend * newdata = new Friend[capacity];
+    // Remove the element at current index
+    size_t index = 0;
+    for (size_t i = 0; i < used; i++){
+        if(i == current_index)
+            continue;
+        newdata[index] = data[i];
+        index++;
     }
+    // Check if it was the last element and move back the current index
+    if (current_index == used-1)
+        current_index--;
+
+    // Item is removed so 
+    used--;
+    delete [] data;
+    data = newdata;
 }
 void FBFriends::insert(const Friend& f){
     if (used == capacity){
@@ -64,58 +80,45 @@ void FBFriends::insert(const Friend& f){
         return;
     }
     Friend * newdata = new Friend[capacity];
-    //Copy everything from 0 to < current index
-    int index = 0;
+    size_t index = 0;
     for (size_t i = 0; i < current_index; i++){
         newdata[index] = data[i];
         index++;
     }
-    //Insert new item at current index
     newdata[index] = f;
     index++;
-    //Copy everything from current index over
     for (size_t i = current_index; i < used; i++){
         newdata[index] = data[i];
         index++;
     }
-    delete [] data;
+    used++;
+    delete[] data;
     data = newdata;
 }
 void FBFriends::attach(const Friend& f){
     if (used == capacity){
         resize();
     }
-    // Possible situations
-    // Nothing in it
     if (used == 0){
         data[0] = f;
         used++;
         return;
     }
-    // Adding to the end of the list
-    if (current_index == used-1){
-        data[used + 1] = f;
-        used++;
-        return;
-    }
-    // Everything else
     Friend * newdata = new Friend[capacity];
-    int index = 0;
-    // Copy everything up to the current index
+    size_t index = 0;
+    // Copy everything to current index
     for (size_t i = 0; i <= current_index; i++){
-        cout << data[i].get_name() << '\n';
         newdata[index] = data[i];
         index++;
     }
-    // Insert new friend
     newdata[index] = f;
     index++;
-    // Copy everything from current_index + 1
     for (size_t i = current_index+1; i < used; i++){
-        cout << data[i].get_name() << '\n';
         newdata[index] = data[i];
+        index++;
     }
-    delete [] data;
+    used++;
+    delete[] data;
     data = newdata;
 }
 void FBFriends::show_all(std::ostream& outs)const{
